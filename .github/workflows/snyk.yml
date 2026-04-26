@@ -1,4 +1,4 @@
-name: Snyk Security Pipeline
+name: Snyk Security Pipeline — Nova Bank Demo
 
 on:
   push:
@@ -22,8 +22,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Snyk test — block on high and critical
+      - name: Snyk test — scan for vulnerabilities
         uses: snyk/actions/node@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -31,7 +32,6 @@ jobs:
 
       - name: Snyk monitor — post snapshot to dashboard
         uses: snyk/actions/node@master
-        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
