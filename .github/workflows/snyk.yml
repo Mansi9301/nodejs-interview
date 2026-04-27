@@ -22,29 +22,42 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Snyk CLI and Delta
+      - name: Install Snyk CLI + Delta
         run: |
           npm install -g snyk
           npm install -g snyk-delta
 
+     
+      # Dependency vulnerability scan
+      
       - name: Snyk test — scan vulnerabilities
         continue-on-error: true
         run: snyk test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk delta — compare new vulnerabilities
-        run: snyk test --json --print-deps | snyk-delta
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
+      
+      # Infrastructure as Code scan
+     
       - name: Snyk IaC — scan infrastructure configs
         continue-on-error: true
         run: snyk iac test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk monitor — send snapshot to dashboard
+     
+      # Delta scan (new vulnerabilities vs baseline)
+     
+      - name: Snyk delta — detect new issues
+        continue-on-error: true
+        run: snyk delta
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+     
+      # Create/update security baseline
+     
+      - name: Snyk monitor — create dashboard snapshot
         run: snyk monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
